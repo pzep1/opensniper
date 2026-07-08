@@ -1,27 +1,31 @@
 # OpenSniper
 
-OpenSniper is an open-source macOS menu bar utility for capturing text from any visible screen area. It is inspired by the common OCR snipping workflow: press a shortcut, drag over an area, and paste the recognized text from the clipboard.
+OpenSniper is a tiny macOS menu bar app for grabbing text from your screen.
 
-This project is not affiliated with TextSniper and does not reuse its name, assets, copy, or proprietary code.
+Press `Control+3`, drag over some text, and OpenSniper copies the recognized text to your clipboard. That is the whole idea. Use it on screenshots, PDFs, images, browser pages, app dialogs, or anything else visible on screen.
 
-## Features
+It can also grab QR codes and barcodes.
 
-- Menu bar app with no Dock icon.
-- Global shortcut, defaulting to `Control+3`.
-- Drag-to-select screen overlay.
-- OCR through Apple's Vision framework.
-- Copies recognized text to the clipboard.
-- QR code and barcode capture through Vision.
-- Text-to-speech for the last capture.
-- Preferences for shortcut, OCR speed, OCR language hints, line joining, and auto-speech.
+## Download
 
-## Requirements
+Get the latest DMG from the releases page:
 
-- macOS 13 Ventura or newer.
-- Xcode command line tools.
-- Screen Recording permission granted to the built app.
+[Download OpenSniper](https://github.com/pzep1/opensniper/releases/latest)
 
-The implementation uses AppKit, Carbon global hotkeys, CoreGraphics screen capture, Vision OCR/barcode detection, NSPasteboard, and NSSpeechSynthesizer.
+OpenSniper needs macOS 13 or newer.
+
+The GitHub build is free and open source, but it is not notarized yet. macOS may show a warning the first time you open it.
+
+## Use
+
+1. Open `OpenSniper.app`.
+2. Allow Screen Recording when macOS asks.
+3. Quit and reopen OpenSniper after granting permission.
+4. Press `Control+3`.
+5. Drag around the text you want.
+6. Paste anywhere.
+
+You can also use the menu bar icon to capture text, capture a QR/barcode, copy the last capture, or change preferences.
 
 ## Build
 
@@ -30,71 +34,20 @@ scripts/build-macos-app.sh
 open dist/OpenSniper.app
 ```
 
-The script builds the Xcode Release target, writes `dist/OpenSniper.app`, and uses ad-hoc signing so macOS can launch the app bundle.
-
-For development without packaging:
-
-```bash
-swift run OpenSniper
-```
-
-Running as a bare command-line executable may not behave exactly like the app bundle for privacy permissions. Use the packaged `.app` for screen capture testing.
-
-## GitHub Release DMG
+To create a DMG:
 
 ```bash
 scripts/create-dmg.sh
 ```
 
-The release disk image is written to `dist/OpenSniper-0.1.0-macOS.dmg` with a matching `.sha256` checksum file. The DMG contains `OpenSniper.app` and an Applications shortcut.
-
-The local DMG build is ad-hoc signed for free distribution. Users may see macOS Gatekeeper warnings unless the app is Developer ID signed and notarized.
-
-## Test
+To run tests:
 
 ```bash
 swift test
 ```
 
-The current automated tests cover text post-processing and screen-capture geometry. AppKit, global shortcuts, screen capture permissions, and Vision recognition require manual macOS validation.
+## License
 
-The repository also includes a macOS GitHub Actions workflow at `.github/workflows/macos.yml` that runs `swift test` and packages the app bundle on Apple Silicon and Intel macOS runners.
+MIT. Use it, fork it, improve it, share it.
 
-For host-aware checks, run:
-
-```bash
-scripts/check.sh
-```
-
-## When a Mac Is Required
-
-A macOS computer is required now for the next verification step. The Linux workspace can store and review the source, but it cannot compile AppKit/Vision code or exercise the OS privacy prompts.
-
-Use a Mac for:
-
-- `swift test`, because the package declares a macOS platform and the app target imports AppKit, Vision, Carbon, and CoreGraphics.
-- `scripts/build-macos-app.sh`, because it creates and signs a `.app` bundle.
-- Runtime testing of Screen Recording permission, the global shortcut, overlay windows, OCR, barcode detection, clipboard writes, and speech.
-- Display-geometry validation on Retina and multi-monitor setups.
-
-See `docs/MACOS_TESTING.md` for the full pass/fail checklist.
-
-## Manual macOS Validation Checklist
-
-1. Build with `scripts/build-macos-app.sh`.
-2. Launch `dist/OpenSniper.app`.
-3. Grant Screen Recording permission when prompted, then quit and relaunch the app.
-4. Confirm the menu bar icon appears and the app does not appear in the Dock.
-5. Press `Control+3`; verify the selection overlay appears on each connected display.
-6. Drag a rectangle around selectable-looking text in a browser or PDF; verify text is copied to the clipboard.
-7. Paste into TextEdit or another editor and compare OCR quality.
-8. Use the menu item `Capture QR or Barcode`; verify a QR/barcode payload is copied.
-9. Open Preferences, change the shortcut, and verify the new shortcut works after closing Preferences.
-10. Test with Retina and non-Retina displays if available; confirm the captured region matches the selection.
-
-## Known First-Pass Limitations
-
-- The selection must stay within one display.
-- The app uses the current visible pixels, so protected video surfaces or DRM content may not be capturable.
-- Language hints are passed directly to Vision; unsupported language tags may reduce accuracy or cause Vision errors on older macOS versions.
-- Packaging is intentionally simple and uses ad-hoc signing. Release distribution needs a Developer ID certificate and notarization.
+OpenSniper is not affiliated with TextSniper.
