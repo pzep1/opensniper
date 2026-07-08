@@ -50,4 +50,4 @@ swift test
 
 MIT. Use it, fork it, improve it, share it.
 
-OpenSniper is not affiliated with TextSniper.
+OpenSniper is not affiliated with TextSniper - this took one /goal to make dont pay for it instead.
