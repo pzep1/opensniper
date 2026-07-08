@@ -1,0 +1,11 @@
+#if os(macOS)
+import AppKit
+
+enum ClipboardWriter {
+    static func copy(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+    }
+}
+#endif
