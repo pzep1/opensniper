@@ -7,8 +7,8 @@ struct KeyboardShortcut: Codable, Equatable {
     var modifierRawValue: UInt
 
     static let defaultShortcut = KeyboardShortcut(
-        keyCode: UInt32(kVK_ANSI_2),
-        modifiers: [.command, .shift]
+        keyCode: UInt32(kVK_ANSI_3),
+        modifiers: [.control]
     )
 
     init(keyCode: UInt32, modifiers: NSEvent.ModifierFlags) {

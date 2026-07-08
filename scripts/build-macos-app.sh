@@ -7,24 +7,33 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CONFIGURATION="${CONFIGURATION:-release}"
+CONFIGURATION="${CONFIGURATION:-Release}"
+case "$CONFIGURATION" in
+  release) CONFIGURATION="Release" ;;
+  debug) CONFIGURATION="Debug" ;;
+esac
 APP_NAME="OpenSniper"
 APP_DIR="$ROOT_DIR/dist/$APP_NAME.app"
-CONTENTS_DIR="$APP_DIR/Contents"
-MACOS_DIR="$CONTENTS_DIR/MacOS"
-RESOURCES_DIR="$CONTENTS_DIR/Resources"
+DERIVED_DATA_DIR="${DERIVED_DATA_DIR:-$ROOT_DIR/.build/xcode-macos-app}"
+PRODUCT_APP="$DERIVED_DATA_DIR/Build/Products/$CONFIGURATION/$APP_NAME.app"
 
 cd "$ROOT_DIR"
 
-swift build -c "$CONFIGURATION"
-BIN_DIR="$(swift build -c "$CONFIGURATION" --show-bin-path)"
+xcodebuild build \
+  -quiet \
+  -project "$ROOT_DIR/OpenSniper.xcodeproj" \
+  -scheme "$APP_NAME" \
+  -configuration "$CONFIGURATION" \
+  -derivedDataPath "$DERIVED_DATA_DIR"
+
+if [[ ! -d "$PRODUCT_APP" ]]; then
+  echo "Expected Xcode product was not created: $PRODUCT_APP"
+  exit 1
+fi
 
 rm -rf "$APP_DIR"
-mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
-cp "$BIN_DIR/$APP_NAME" "$MACOS_DIR/$APP_NAME"
-cp "$ROOT_DIR/Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
-printf "APPL????" > "$CONTENTS_DIR/PkgInfo"
-
-codesign --force --sign - "$APP_DIR"
+mkdir -p "$ROOT_DIR/dist"
+ditto "$PRODUCT_APP" "$APP_DIR"
+codesign --verify --deep --strict "$APP_DIR"
 
 echo "$APP_DIR"

@@ -29,9 +29,9 @@ Use a fresh build from `dist/OpenSniper.app`, not `swift run`, for privacy-permi
 | Area | Steps | Expected result |
 | --- | --- | --- |
 | Launch | Open `dist/OpenSniper.app`. | A menu bar item appears and no Dock icon appears. |
-| Permission | Choose `Capture Text` or press `Command+Shift+2` before permission is granted. | macOS prompts for Screen Recording permission or OpenSniper opens the correct System Settings pane. |
+| Permission | Choose `Capture Text` or press `Control+3` before permission is granted. | macOS prompts for Screen Recording permission or OpenSniper opens the correct System Settings pane. |
 | Relaunch | Grant Screen Recording permission, quit OpenSniper, and launch it again. | Capture can start without another permission error. |
-| Shortcut | Press `Command+Shift+2`. | A crosshair-style full-screen overlay appears. |
+| Shortcut | Press `Control+3`. | A crosshair-style full-screen overlay appears. |
 | Cancel | Press `Esc` while the overlay is visible. | Overlay disappears and no clipboard write occurs. |
 | OCR | Drag around visible text in Safari, TextEdit, Preview, or a PDF. | Recognized text is copied to the clipboard and can be pasted into another app. |
 | Barcode | Choose `Capture QR or Barcode` and drag around a visible QR code. | The decoded payload is copied to the clipboard. |

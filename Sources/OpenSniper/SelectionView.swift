@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import OpenSniperCore
 
 protocol SelectionViewDelegate: AnyObject {
     func selectionView(_ view: SelectionView, didSelect rect: CGRect, on screen: NSScreen)
@@ -10,8 +11,7 @@ final class SelectionView: NSView {
     weak var delegate: SelectionViewDelegate?
 
     private let screen: NSScreen
-    private var startPoint: CGPoint?
-    private var currentPoint: CGPoint?
+    private var dragState = ScreenSelectionDragState()
 
     init(screen: NSScreen) {
         self.screen = screen
@@ -52,26 +52,22 @@ final class SelectionView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        let point = convert(event.locationInWindow, from: nil)
-        startPoint = point
-        currentPoint = point
+        dragState.begin(at: screenPoint(from: event))
         needsDisplay = true
     }
 
     override func mouseDragged(with event: NSEvent) {
-        currentPoint = convert(event.locationInWindow, from: nil)
+        dragState.update(to: screenPoint(from: event))
         needsDisplay = true
     }
 
     override func mouseUp(with event: NSEvent) {
-        currentPoint = convert(event.locationInWindow, from: nil)
-
-        guard let rect = selectionRect, rect.width >= 6, rect.height >= 6 else {
-            delegate?.selectionViewDidCancel(self)
-            return
+        switch dragState.finish(at: screenPoint(from: event)) {
+        case .keepSelecting:
+            needsDisplay = true
+        case .finish(let rect):
+            delegate?.selectionView(self, didSelect: cgRect(from: rect), on: screen)
         }
-
-        delegate?.selectionView(self, didSelect: rect, on: screen)
     }
 
     override func keyDown(with event: NSEvent) {
@@ -83,16 +79,25 @@ final class SelectionView: NSView {
     }
 
     private var selectionRect: CGRect? {
-        guard let startPoint, let currentPoint else {
+        guard let selectionRect = dragState.selectionRect else {
             return nil
         }
 
-        return CGRect(
-            x: min(startPoint.x, currentPoint.x),
-            y: min(startPoint.y, currentPoint.y),
-            width: abs(currentPoint.x - startPoint.x),
-            height: abs(currentPoint.y - startPoint.y)
-        ).integral
+        return cgRect(from: selectionRect)
+    }
+
+    private func screenPoint(from event: NSEvent) -> ScreenPoint {
+        let point = convert(event.locationInWindow, from: nil)
+        return ScreenPoint(x: Double(point.x), y: Double(point.y))
+    }
+
+    private func cgRect(from rect: PointRect) -> CGRect {
+        CGRect(
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height
+        )
     }
 
     private func drawHint(in rect: CGRect) {

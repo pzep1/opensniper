@@ -7,7 +7,7 @@ This project is not affiliated with TextSniper and does not reuse its name, asse
 ## Features
 
 - Menu bar app with no Dock icon.
-- Global shortcut, defaulting to `Command+Shift+2`.
+- Global shortcut, defaulting to `Control+3`.
 - Drag-to-select screen overlay.
 - OCR through Apple's Vision framework.
 - Copies recognized text to the clipboard.
@@ -30,7 +30,7 @@ scripts/build-macos-app.sh
 open dist/OpenSniper.app
 ```
 
-The script builds the Swift package, creates `dist/OpenSniper.app`, and applies ad-hoc code signing so macOS can launch the app bundle.
+The script builds the Xcode Release target, writes `dist/OpenSniper.app`, and uses ad-hoc signing so macOS can launch the app bundle.
 
 For development without packaging:
 
@@ -39,6 +39,16 @@ swift run OpenSniper
 ```
 
 Running as a bare command-line executable may not behave exactly like the app bundle for privacy permissions. Use the packaged `.app` for screen capture testing.
+
+## GitHub Release DMG
+
+```bash
+scripts/create-dmg.sh
+```
+
+The release disk image is written to `dist/OpenSniper-0.1.0-macOS.dmg` with a matching `.sha256` checksum file. The DMG contains `OpenSniper.app` and an Applications shortcut.
+
+The local DMG build is ad-hoc signed for free distribution. Users may see macOS Gatekeeper warnings unless the app is Developer ID signed and notarized.
 
 ## Test
 
@@ -75,7 +85,7 @@ See `docs/MACOS_TESTING.md` for the full pass/fail checklist.
 2. Launch `dist/OpenSniper.app`.
 3. Grant Screen Recording permission when prompted, then quit and relaunch the app.
 4. Confirm the menu bar icon appears and the app does not appear in the Dock.
-5. Press `Command+Shift+2`; verify the selection overlay appears on each connected display.
+5. Press `Control+3`; verify the selection overlay appears on each connected display.
 6. Drag a rectangle around selectable-looking text in a browser or PDF; verify text is copied to the clipboard.
 7. Paste into TextEdit or another editor and compare OCR quality.
 8. Use the menu item `Capture QR or Barcode`; verify a QR/barcode payload is copied.

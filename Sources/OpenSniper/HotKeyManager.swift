@@ -54,7 +54,7 @@ final class HotKeyManager {
             throw HotKeyError.registrationFailed(handlerStatus)
         }
 
-        var hotKeyID = EventHotKeyID(
+        let hotKeyID = EventHotKeyID(
             signature: fourCharacterCode("OSNP"),
             id: 1
         )

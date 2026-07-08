@@ -52,7 +52,7 @@ struct ScreenSelection {
             height: CGFloat(pixelRect.height)
         )
 
-        return CGDisplayCreateImageForRect(displayID, captureRect)
+        return CGDisplayCreateImage(displayID, rect: captureRect)
     }
 }
 #endif

@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import OpenSniperCore
 
 protocol CaptureCoordinatorDelegate: AnyObject {
     func captureCoordinator(_ coordinator: CaptureCoordinator, didCopy text: String, mode: CaptureMode)
@@ -12,6 +13,7 @@ final class CaptureCoordinator {
 
     private let overlayController = SelectionOverlayController()
     private let recognitionService = RecognitionService()
+    private var permissionPolicy = ScreenCapturePermissionRequestPolicy()
     private var isCapturing = false
 
     private(set) var lastCapturedText: String?
@@ -21,12 +23,23 @@ final class CaptureCoordinator {
             return
         }
 
-        guard ScreenCapturePermission.hasAccess() || ScreenCapturePermission.requestAccess() else {
+        switch permissionPolicy.action(hasScreenCaptureAccess: ScreenCapturePermission.hasAccess()) {
+        case .capture:
+            break
+        case .requestPermission:
+            guard ScreenCapturePermission.requestAccess() else {
+                delegate?.captureCoordinator(
+                    self,
+                    didFailWith: "OpenSniper needs Screen Recording permission before it can read pixels from the selected area. Enable it in System Settings, then quit and reopen the same OpenSniper app."
+                )
+                ScreenCapturePermission.openSettings()
+                return
+            }
+        case .waitForRelaunch:
             delegate?.captureCoordinator(
                 self,
-                didFailWith: "OpenSniper needs Screen Recording permission before it can read pixels from the selected area. Enable it in System Settings, then restart OpenSniper."
+                didFailWith: "OpenSniper still cannot read the screen. If Screen Recording is already enabled, quit and reopen the same OpenSniper app. If you switch between TestFlight and a local build, macOS treats them as different apps."
             )
-            ScreenCapturePermission.openSettings()
             return
         }
 
